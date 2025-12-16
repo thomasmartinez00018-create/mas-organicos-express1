@@ -10,7 +10,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     name: 'Gran Pack Navideño Familiar (Backup)',
     description: 'La solución completa. Incluye vegetales de estación, frutas orgánicas, nueces, pan dulce artesanal y vino orgánico.',
     price: 58000,
-    category: 'packs',
+    category: 'Packs Navidad',
     image: 'https://images.unsplash.com/photo-1607349913338-fca6f7fc42d1?auto=format&fit=crop&q=80&w=800',
     isPromo: true,
     stock: 15,
@@ -21,7 +21,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     name: 'Caja Huerta Navideña (Veggie)',
     description: 'Selección premium de verdes, tomates reliquia, zanahorias baby y mix de frutos secos.',
     price: 32000,
-    category: 'packs',
+    category: 'Packs Navidad',
     image: 'https://images.unsplash.com/photo-1595855709990-c17122031961?auto=format&fit=crop&q=80&w=800',
     stock: 25,
     featured: true
@@ -101,15 +101,6 @@ const parseCSV = (text: string) => {
   });
 };
 
-// Helper to normalize category from Sheet to App Types
-const normalizeCategory = (cat: string): Category => {
-  const lower = cat.toLowerCase();
-  if (lower.includes('pack')) return 'packs';
-  if (lower.includes('plato') || lower.includes('fresco') || lower.includes('verdura')) return 'fresh';
-  if (lower.includes('despensa') || lower.includes('almacen')) return 'pantry';
-  return 'fresh'; // Default fallback
-};
-
 export const fetchProducts = async (): Promise<Product[]> => {
   if (!GOOGLE_SHEET_CSV_URL) return FALLBACK_PRODUCTS;
 
@@ -127,7 +118,7 @@ export const fetchProducts = async (): Promise<Product[]> => {
       name: row.name,
       description: row.description,
       price: Number(row.price?.replace(/[^0-9.-]+/g,"")) || 0, // Clean price string (remove $ or ,)
-      category: normalizeCategory(row.category || ''),
+      category: row.category ? row.category.trim() : 'General', // Use raw category from sheet
       image: row.image || 'https://via.placeholder.com/400?text=Sin+Imagen',
       stock: Number(row.stock) || 0,
       isPromo: row.ispromo?.toUpperCase() === 'TRUE',

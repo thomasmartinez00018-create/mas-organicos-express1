@@ -4,7 +4,6 @@ import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { NutriBot } from './components/NutriBot';
 import { ProductGrid } from './components/ProductGrid';
-import { GeoBanner } from './components/GeoBanner';
 import { CartDrawer } from './components/CartDrawer';
 import { Toast } from './components/Toast';
 import { PromoBar } from './components/PromoBar';
@@ -16,7 +15,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isBenavidez, setIsBenavidez] = useState(false);
   
   // Toast State
   const [toastMessage, setToastMessage] = useState('');
@@ -33,10 +31,9 @@ function App() {
     loadData();
   }, []);
 
-  // Load Cart and Location Preference from LocalStorage
+  // Load Cart from LocalStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('mo_cart');
-    const savedLocation = localStorage.getItem('mo_isBenavidez');
     
     if (savedCart) {
       try {
@@ -45,21 +42,12 @@ function App() {
         console.error("Error parsing cart", e);
       }
     }
-    
-    if (savedLocation) {
-      setIsBenavidez(JSON.parse(savedLocation));
-    }
   }, []);
 
   // Save Cart to LocalStorage
   useEffect(() => {
     localStorage.setItem('mo_cart', JSON.stringify(cart));
   }, [cart]);
-
-  // Save Location Preference
-  useEffect(() => {
-    localStorage.setItem('mo_isBenavidez', JSON.stringify(isBenavidez));
-  }, [isBenavidez]);
 
   const showToast = (productName: string) => {
     setToastMessage(`¡${productName} agregado al pack!`);
@@ -125,16 +113,12 @@ function App() {
     <div className="min-h-screen bg-primary font-sans text-secondary">
       <PromoBar />
       {/* 
-        Sticky Container for Header and Banner.
+        Sticky Container for Header.
       */}
       <div className="sticky top-0 z-50 shadow-xl">
         <Header 
           cartItemCount={cartItemCount} 
           onOpenCart={() => setIsCartOpen(true)} 
-        />
-        <GeoBanner 
-          isBenavidez={isBenavidez} 
-          onToggle={() => setIsBenavidez(!isBenavidez)} 
         />
       </div>
       
@@ -144,13 +128,11 @@ function App() {
         <ProductGrid 
           products={products}
           onAddToCart={addToCart} 
-          isBenavidez={isBenavidez}
         />
 
         <NutriBot 
           products={products}
           onAddToCart={addToCart} 
-          isBenavidez={isBenavidez}
         />
       </main>
 
@@ -249,7 +231,6 @@ function App() {
         cart={cart}
         onRemove={removeFromCart}
         onUpdateQty={updateQuantity}
-        isBenavidez={isBenavidez}
       />
       
       <Toast 

@@ -1,4 +1,4 @@
-export type Category = 'packs' | 'fresh' | 'pantry';
+export type Category = string;
 
 export interface Product {
   id: string;
@@ -23,7 +23,6 @@ export interface UserData {
   name: string;
   address: string;
   zone: ShippingZone;
-  isBenavidezUser: boolean;
 }
 
 declare global {
