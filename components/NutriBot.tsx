@@ -7,12 +7,11 @@ import { Product } from '../types';
 interface NutriBotProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
-  isBenavidez: boolean;
 }
 
 type Step = 'intro' | 'guests' | 'preference' | 'result';
 
-export const NutriBot: React.FC<NutriBotProps> = ({ products, onAddToCart, isBenavidez }) => {
+export const NutriBot: React.FC<NutriBotProps> = ({ products, onAddToCart }) => {
   const [step, setStep] = useState<Step>('intro');
   const [guests, setGuests] = useState<string>('');
   const [preference, setPreference] = useState<string>('');
@@ -256,17 +255,9 @@ export const NutriBot: React.FC<NutriBotProps> = ({ products, onAddToCart, isBen
                       <p className="text-primary/80 text-sm leading-relaxed">{recommendedProduct.description}</p>
                       
                       <div className="flex flex-col md:flex-row items-center md:items-baseline gap-3 mt-2">
-                        {isBenavidez && (
-                          <span className="text-xl text-primary/60 line-through">
-                            ${recommendedProduct.price.toLocaleString()}
-                          </span>
-                        )}
                         <span className="text-4xl font-bold text-accent">
-                          ${(isBenavidez ? recommendedProduct.price * 0.8 : recommendedProduct.price).toLocaleString()}
+                          ${recommendedProduct.price.toLocaleString()}
                         </span>
-                        {isBenavidez && (
-                          <span className="text-sm bg-accent text-white px-2 py-1 rounded font-bold">20% OFF</span>
-                        )}
                       </div>
                     </div>
                   </div>

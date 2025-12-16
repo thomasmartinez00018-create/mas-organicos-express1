@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Plus, Minus, Send, Truck, Store, CalendarClock, Tag, AlertTriangle, Lock, PartyPopper } from 'lucide-react';
+import { X, Trash2, Plus, Minus, Send, Truck, Store, CalendarClock, Lock, ShoppingBasket as ShoppingBasketIcon } from 'lucide-react';
 import { CartItem, UserData } from '../types';
 
 interface CartDrawerProps {
@@ -9,7 +9,6 @@ interface CartDrawerProps {
   cart: CartItem[];
   onRemove: (id: string) => void;
   onUpdateQty: (id: string, delta: number) => void;
-  isBenavidez: boolean;
 }
 
 interface ZoneDefinition {
@@ -54,14 +53,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onClose, 
   cart, 
   onRemove, 
-  onUpdateQty,
-  isBenavidez
+  onUpdateQty
 }) => {
   const [formData, setFormData] = useState<UserData>({
     name: '',
     address: '',
-    zone: 'pickup_pacheco',
-    isBenavidezUser: false
+    zone: 'pickup_pacheco'
   });
 
   // Calculate Subtotal
@@ -85,18 +82,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   // 3. Final Cost Calculation
   const finalShippingCost = isPickup ? 0 : (isFreeShippingMet ? 0 : selectedZone.shippingCost);
   
-  // 4. Benavidez Discount Logic (20% OFF if picking up at Benavidez)
-  const isEligibleForDiscount = formData.zone === 'pickup_benavidez';
-  const discountAmount = isEligibleForDiscount ? subtotal * 0.20 : 0;
-  
-  const total = subtotal + finalShippingCost - discountAmount;
-
-  // Effect: Auto-switch to Benavidez pickup if the user clicked the banner
-  useEffect(() => {
-    if (isBenavidez) {
-      setFormData(prev => ({ ...prev, zone: 'pickup_benavidez', isBenavidezUser: true }));
-    }
-  }, [isBenavidez]);
+  const total = subtotal + finalShippingCost;
 
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,10 +103,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       shippingText = `Envío a ${selectedZone.label} (${isFreeShippingMet ? 'GRATIS' : '$' + finalShippingCost})\n📅 ${selectedZone.days} ${selectedZone.hours}`;
     }
 
-    const discountText = isEligibleForDiscount 
-      ? `\n*Descuento Vecino Benavidez (20%):* -$${discountAmount.toLocaleString()}` 
-      : '';
-
     const message = `
 *HOLA! PEDIDO WEB - MÁS ORGÁNICOS* 🎄
 
@@ -128,13 +110,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 ${itemsList}
 
 *Subtotal:* $${subtotal.toLocaleString()}
-*Entrega:* ${shippingText}${discountText}
+*Entrega:* ${shippingText}
 *TOTAL FINAL: $${total.toLocaleString()}*
 
 *Mis Datos:*
 👤 Nombre: ${formData.name}
 ${!isPickup ? `📍 Dirección: ${formData.address}` : '📍 Retiro por Sucursal'}
-${isEligibleForDiscount ? '✅ Promo Benavidez 20% OFF Activada' : ''}
 
 _Espero confirmación para abonar. Gracias!_
     `.trim();
@@ -291,13 +272,6 @@ _Espero confirmación para abonar. Gracias!_
                       </span>
                     </div>
 
-                    {isEligibleForDiscount && (
-                       <div className="flex justify-between text-accent font-bold animate-pulse bg-accent/5 p-2 rounded">
-                        <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> Descuento Vecino (20%)</span>
-                        <span>-${discountAmount.toLocaleString()}</span>
-                      </div>
-                    )}
-
                     <div className="flex justify-between text-xl font-bold text-secondary pt-2 border-t">
                       <span>Total</span>
                       <span>${total.toLocaleString()}</span>
@@ -379,12 +353,6 @@ _Espero confirmación para abonar. Gracias!_
                       <><Send className="w-5 h-5" /> Enviar Pedido por WhatsApp</>
                     )}
                   </button>
-                  
-                  {isEligibleForDiscount && (
-                    <p className="text-center text-xs text-accent font-bold animate-pulse">
-                      ¡Estás ahorrando ${discountAmount.toLocaleString()} por retirar en Benavidez!
-                    </p>
-                  )}
                 </form>
               </div>
             )}
@@ -394,16 +362,3 @@ _Espero confirmación para abonar. Gracias!_
     </AnimatePresence>
   );
 };
-
-function ShoppingBasketIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m5 11 4-7" />
-      <path d="m19 11-4-7" />
-      <path d="M2 11h20" />
-      <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8c.9 0 1.8-.7 2-1.6l1.7-7.4" />
-      <path d="m9 11 1 9" />
-      <path d="m15 11-1 9" />
-    </svg>
-  )
-}

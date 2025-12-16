@@ -1,27 +1,30 @@
-import React, { useState } from 'react';
-import { Product, Category } from '../types';
+import React, { useState, useMemo } from 'react';
+import { Product } from '../types';
 import { motion } from 'framer-motion';
-import { Plus, Info, Ban } from 'lucide-react';
+import { Plus, Ban } from 'lucide-react';
 
+// Se eliminó isBenavidez de la interfaz
 interface ProductGridProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
-  isBenavidez: boolean;
 }
 
-export const ProductGrid: React.FC<ProductGridProps> = ({ products, onAddToCart, isBenavidez }) => {
-  const [filter, setFilter] = useState<Category | 'all'>('all');
+export const ProductGrid: React.FC<ProductGridProps> = ({ products, onAddToCart }) => {
+  const [filter, setFilter] = useState<string>('Todos');
 
-  const filteredProducts = filter === 'all' 
+  // LÓGICA DINÁMICA: Extrae las categorías únicas directamente de los productos cargados del Sheet
+  const categories = useMemo(() => {
+    // Obtenemos todas las categorías, filtramos vacías y eliminamos duplicados
+    const uniqueCats = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
+    // Las ordenamos alfabéticamente para mantener el orden visual
+    uniqueCats.sort();
+    // Agregamos "Todos" al principio
+    return ['Todos', ...uniqueCats];
+  }, [products]);
+
+  const filteredProducts = filter === 'Todos' 
     ? products 
     : products.filter(p => p.category === filter);
-
-  const categories = [
-    { id: 'all', label: 'Todos' },
-    { id: 'packs', label: 'Packs Navidad' },
-    { id: 'fresh', label: 'Verdura Fresca' },
-    { id: 'pantry', label: 'Despensa' }
-  ];
 
   const MotionDiv = motion.div as any;
 
@@ -34,15 +37,15 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, onAddToCart,
         <div className="flex flex-wrap justify-center gap-2 md:gap-4">
           {categories.map((cat) => (
             <button
-              key={cat.id}
-              onClick={() => setFilter(cat.id as any)}
-              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                filter === cat.id 
+              key={cat}
+              onClick={() => setFilter(cat)}
+              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 capitalize ${
+                filter === cat 
                   ? 'bg-secondary text-primary shadow-lg scale-105' 
                   : 'bg-white border border-secondary/10 text-secondary/70 hover:bg-secondary/5'
               }`}
             >
-              {cat.label}
+              {cat}
             </button>
           ))}
         </div>
@@ -51,8 +54,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, onAddToCart,
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredProducts.map((product) => {
-          // Calculate discount if applicable
-          const displayPrice = isBenavidez ? product.price * 0.8 : product.price;
           const isOutOfStock = product.stock <= 0;
 
           return (
@@ -109,16 +110,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, onAddToCart,
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                   <div className="flex flex-col">
                     <span className="text-xs text-gray-400 font-medium uppercase">
-                      {isBenavidez ? 'Precio Vecino (20% OFF)' : 'Precio'}
+                      Precio
                     </span>
                     <div className="flex items-baseline gap-2">
-                      {isBenavidez && (
-                        <span className="text-sm text-gray-400 line-through decoration-alert/50">
-                          ${product.price.toLocaleString()}
-                        </span>
-                      )}
-                      <span className={`text-2xl font-bold ${isBenavidez ? 'text-accent' : 'text-secondary'}`}>
-                        ${displayPrice.toLocaleString()}
+                      <span className="text-2xl font-bold text-secondary">
+                        ${product.price.toLocaleString()}
                       </span>
                     </div>
                   </div>
