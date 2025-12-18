@@ -111,11 +111,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-primary font-sans text-secondary">
-      <PromoBar />
       {/* 
-        Sticky Container for Header.
+        Sticky Container for PromoBar and Header together.
       */}
       <div className="sticky top-0 z-50 shadow-xl">
+        <PromoBar />
         <Header 
           cartItemCount={cartItemCount} 
           onOpenCart={() => setIsCartOpen(true)} 
